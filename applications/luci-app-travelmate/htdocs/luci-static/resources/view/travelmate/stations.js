@@ -47,6 +47,35 @@ function normBssid(bssid) {
 }
 
 /*
+	Encryption dropdown options — the single source of truth for the
+	'encryption' ListValue, shared by the uplink-config tab and the
+	add-uplink form so the two dropdowns can never drift apart.
+	Returns [value, label] pairs in display order.
+*/
+function getEncryptionOptions() {
+	return [
+		['sae', _('WPA3 PSK (SAE)')],
+		['sae-mixed', _('Mixed WPA2/WPA3 PSK (CCMP)')],
+		['psk2+ccmp', _('WPA2 PSK (CCMP)')],
+		['psk2+tkip', _('WPA2 PSK (TKIP)')],
+		['psk+ccmp', _('WPA PSK (CCMP)')],
+		['psk+tkip', _('WPA PSK (TKIP)')],
+		['psk-mixed+ccmp', _('Mixed WPA/WPA2 PSK (CCMP)')],
+		['psk-mixed+tkip', _('Mixed WPA/WPA2 PSK (TKIP)')],
+		['wpa3', _('WPA3 802.1X')],
+		['wpa3-mixed', _('Mixed WPA2/WPA3 802.1X')],
+		['wpa2+ccmp', _('WPA2 802.1X (CCMP)')],
+		['wpa2+tkip', _('WPA2 802.1X (TKIP)')],
+		['wpa+ccmp', _('WPA 802.1X (CCMP)')],
+		['wpa+tkip', _('WPA 802.1X (TKIP)')],
+		['wpa-mixed+ccmp', _('Mixed WPA/WPA2 802.1X (CCMP)')],
+		['wpa-mixed+tkip', _('Mixed WPA/WPA2 802.1X (TKIP)')],
+		['owe', _('WPA3 OWE')],
+		['none', _('Open')]
+	];
+}
+
+/*
 	change the status of travelmate stations
 */
 function handleToggle(sid) {
@@ -384,24 +413,7 @@ return view.extend({
 		};
 
 		o = s.taboption('wireless', form.ListValue, 'encryption', _('Encryption'));
-		o.value('sae', _('WPA3 PSK (SAE)'));
-		o.value('sae-mixed', _('Mixed WPA2/WPA3 PSK (CCMP)'));
-		o.value('psk2+ccmp', _('WPA2 PSK (CCMP)'));
-		o.value('psk2+tkip', _('WPA2 PSK (TKIP)'));
-		o.value('psk+ccmp', _('WPA PSK (CCMP)'));
-		o.value('psk+tkip', _('WPA PSK (TKIP)'));
-		o.value('psk-mixed+ccmp', _('Mixed WPA/WPA2 PSK (CCMP)'));
-		o.value('psk-mixed+tkip', _('Mixed WPA/WPA2 PSK (TKIP)'));
-		o.value('wpa3', _('WPA3 802.1X'));
-		o.value('wpa3-mixed', _('Mixed WPA2/WPA3 802.1X'));
-		o.value('wpa2+ccmp', _('WPA2 802.1X (CCMP)'));
-		o.value('wpa2+tkip', _('WPA2 802.1X (TKIP)'));
-		o.value('wpa+ccmp', _('WPA 802.1X (CCMP)'));
-		o.value('wpa+tkip', _('WPA 802.1X (TKIP)'));
-		o.value('wpa-mixed+ccmp', _('Mixed WPA/WPA2 802.1X (CCMP)'));
-		o.value('wpa-mixed+tkip', _('Mixed WPA/WPA2 802.1X (TKIP)'));
-		o.value('owe', _('WPA3 OWE'));
-		o.value('none', _('Open'));
+		getEncryptionOptions().forEach((e) => o.value(e[0], e[1]));
 		o.default = 'none';
 		o.textvalue = function (section_id) {
 			let cfgvalue = this.map.data.get('wireless', section_id, 'encryption');
@@ -971,24 +983,7 @@ return view.extend({
 			o2.default = bssid;
 
 			o2 = s2.option(form.ListValue, 'encryption', _('Encryption'));
-			o2.value('sae', _('WPA3 PSK (SAE)'));
-			o2.value('sae-mixed', _('Mixed WPA2/WPA3 PSK (CCMP)'));
-			o2.value('psk2+ccmp', _('WPA2 PSK (CCMP)'));
-			o2.value('psk2+tkip', _('WPA2 PSK (TKIP)'));
-			o2.value('psk+ccmp', _('WPA PSK (CCMP)'));
-			o2.value('psk+tkip', _('WPA PSK (TKIP)'));
-			o2.value('psk-mixed+ccmp', _('Mixed WPA/WPA2 PSK (CCMP)'));
-			o2.value('psk-mixed+tkip', _('Mixed WPA/WPA2 PSK (TKIP)'));
-			o2.value('wpa3', _('WPA3 802.1X'));
-			o2.value('wpa3-mixed', _('Mixed WPA2/WPA3 802.1X'));
-			o2.value('wpa2+ccmp', _('WPA2 802.1X (CCMP)'));
-			o2.value('wpa2+tkip', _('WPA2 802.1X (TKIP)'));
-			o2.value('wpa+ccmp', _('WPA 802.1X (CCMP)'));
-			o2.value('wpa+tkip', _('WPA 802.1X (TKIP)'));
-			o2.value('wpa-mixed+ccmp', _('Mixed WPA/WPA2 802.1X (CCMP)'));
-			o2.value('wpa-mixed+tkip', _('Mixed WPA/WPA2 802.1X (TKIP)'));
-			o2.value('owe', _('WPA3 OWE'));
-			o2.value('none', _('Open'));
+			getEncryptionOptions().forEach((e) => o2.value(e[0], e[1]));
 			o2.default = encryption;
 
 			o2 = s2.option(form.Value, 'key', _('Password'));

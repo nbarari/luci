@@ -501,7 +501,8 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('additional', form.Value, 'trm_useragent', _('User Agent'), _('The selected user agent will be used for connectivity- and captive portal checks.'));
+		o = s.taboption('additional', form.Value, 'trm_useragent', _('User Agent'), _('The selected user agent will be used for connectivity- and captive portal checks. The version-pinned browser strings age over time; "Generic" is de-versioned and never goes stale.'));
+		o.value('Mozilla/5.0 (compatible)', _('Generic (de-versioned)'));
 		o.value('Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0', 'Firefox');
 		o.value('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', 'Chromium');
 		o.value('Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15', 'Safari');

@@ -791,14 +791,23 @@ return view.extend({
 
 										/*
 											result columns
+
+											split on whitespace rather than fixed byte offsets: the
+											first six fields (quality, channel, bssid, wpa, cipher,
+											auth) are space-free by construction in the backend
+											f_scan, and the ssid is always the trailing field.
+											parsing by field keeps long values such as tri-band
+											'WPA1+WPA2+WPA3' or multi-auth 'PSK+SAE+802.1X' from being
+											truncated or bleeding into adjacent columns.
 										*/
-										strength = lines[i].slice(0, 3).trim();
-										channel = lines[i].slice(3, 7).trim();
-										bssid = lines[i].slice(7, 25).trim();
-										wpa = lines[i].slice(25, 37).trim();
-										cipher = lines[i].slice(37, 48).trim();
-										auth = lines[i].slice(48, 59).trim().split(',');
-										ssid = lines[i].slice(59).trim();
+										let cols = lines[i].trim().split(/\s+/);
+										strength = cols[0];
+										channel = cols[1];
+										bssid = cols[2];
+										wpa = cols[3];
+										cipher = cols[4];
+										auth = (cols[5] || '').split(',');
+										ssid = cols.slice(6).join(' ');
 
 										/*
 											SSID preparation

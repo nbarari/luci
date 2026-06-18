@@ -9,6 +9,31 @@
 'require tools.widgets as widgets';
 
 /*
+	Shared status colors (findings L6/L7) — single source of truth for the
+	blue/green/red literals that were previously duplicated as inline
+	style strings across this view. Kept in rgb() form so the active-uplink
+	highlight can compare them against the browser-normalised
+	element.style.color (which is always reported as rgb()).
+*/
+const trmColor = {
+	uplink: 'rgb(51, 119, 204)',  // active uplink + enabled-row feedback (was #37c)
+	vpn: 'rgb(68, 170, 68)',      // encrypted VPN uplink + added-row feedback (was #4a4)
+	removed: 'rgb(170, 34, 34)'   // removed-row feedback (was #a22)
+};
+
+/*
+	Row-status decoration classes, injected once per render() (findings
+	L6/L7). Inline `style="… color: … !important"` previously carried these;
+	a class with !important wins over the bootstrap base cascade
+	(render-verified) while keeping the colors in one place. Derived from
+	trmColor so the literals never drift.
+*/
+const trmRowStyle =
+	'.trm-row-enabled { opacity: 0.5; color: ' + trmColor.uplink + ' !important; }\n' +
+	'.trm-row-removed { opacity: 0.5; color: ' + trmColor.removed + ' !important; }\n' +
+	'.trm-row-added   { opacity: 0.5; color: ' + trmColor.vpn + ' !important; }\n';
+
+/*
 	Cipher helper function
 */
 function resolveCipher(cipherRaw) {
@@ -79,7 +104,7 @@ function handleToggle(sid) {
 				row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(sid));
 				element = row.querySelector('.cbi-value-field');
 				element.textContent = enabled;
-				row.setAttribute('style', 'opacity: 0.5; color: #37c !important;');
+				row.classList.add('trm-row-enabled');
 			});
 		}
 	}
@@ -117,7 +142,7 @@ function handleRemove(sid) {
 	}
 	return uci.save().then(function () {
 		row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(sid));
-		row.setAttribute('style', 'opacity: 0.5; color: #a22 !important;');
+		row.classList.add('trm-row-removed');
 	});
 }
 
@@ -263,7 +288,7 @@ function handleStatus() {
 									oldUplinkView[0].removeAttribute('name', 'uplinkStation');
 								}
 							} else {
-								uplinkColor = (vpnStatus === "✔" ? 'rgb(68, 170, 68)' : 'rgb(51, 119, 204)');
+								uplinkColor = (vpnStatus === "✔" ? trmColor.vpn : trmColor.uplink);
 								for (let i = 0; i < w_sections.length; i++) {
 									newUplinkView = document.getElementById('cbi-wireless-' + w_sections[i]['.name']);
 									if (t_device === w_sections[i].device && t_ssid === w_sections[i].ssid && t_bssid === (w_sections[i].bssid || '-')) {
@@ -1166,11 +1191,17 @@ return view.extend({
 				.then(L.bind(this.map.reset, this.map))
 				.then(function () {
 					let row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(new_sid));
-					row.setAttribute('style', 'opacity: 0.5; color: #4a4 !important;');
+					row.classList.add('trm-row-added');
 				})
 				.then(ui.hideModal)
 		};
-		return m.render();
+		return m.render().then(function (mapEl) {
+			// inject the row-status decoration classes (findings L6/L7).
+			// luci ships no view-local CSS, so a small <style> node scoped to
+			// this view's DOM is the lightest vehicle (no Makefile/asset churn).
+			mapEl.insertBefore(E('style', { type: 'text/css' }, trmRowStyle), mapEl.firstChild);
+			return mapEl;
+		});
 	},
 	handleReset: null
 });

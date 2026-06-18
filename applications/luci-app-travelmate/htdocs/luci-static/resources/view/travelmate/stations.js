@@ -992,15 +992,25 @@ return view.extend({
 								rows.push([_('Empty resultset')]);
 							}
 
-							cbi_update_table(table, rows);
-							table.setAttribute('aria-busy', 'false');
-							let found = res ? rows.length : 0;
-							scanStatus.textContent = (found > 0)
-								? _('Scan complete: %d network(s) found.').format(found)
-								: _('Scan complete: no networks found.');
-							document.getElementById('scan-btn').disabled = false;
+							/*
+								the scan modal may have been dismissed while the
+								(blocking) scan was still running. the backend scan
+								cannot be aborted, but its result must not be rendered
+								into detached nodes -- and the status poller, stopped
+								when the scan began, must be restarted either way.
+							*/
 							let resultsRegion = document.getElementById('trm-scan-results');
 							if (resultsRegion) {
+								cbi_update_table(table, rows);
+								table.setAttribute('aria-busy', 'false');
+								let found = res ? rows.length : 0;
+								scanStatus.textContent = (found > 0)
+									? _('Scan complete: %d network(s) found.').format(found)
+									: _('Scan complete: no networks found.');
+								let scanBtn = document.getElementById('scan-btn');
+								if (scanBtn) {
+									scanBtn.disabled = false;
+								}
 								resultsRegion.focus();
 							}
 							poll.start();

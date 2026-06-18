@@ -1077,36 +1077,38 @@ return view.extend({
 			save new uplink
 		*/
 		s.handleCommit = function (map, ev) {
+			// the add-uplink form value for an option in the '_add_trm' section
+			const getAddValue = (name) => L.toArray(map.lookupOption(name, '_add_trm'))[0].formvalue('_add_trm');
 			const w_sections = uci.sections('wireless', 'wifi-iface');
-			const device = L.toArray(map.lookupOption('device', '_add_trm'))[0].formvalue('_add_trm');
-			const network = L.toArray(map.lookupOption('network', '_add_trm'))[0].formvalue('_add_trm');
-			const ssid = L.toArray(map.lookupOption('ssid', '_add_trm'))[0].formvalue('_add_trm');
-			const ignore_bssid = L.toArray(map.lookupOption('ignore_bssid', '_add_trm'))[0].formvalue('_add_trm');
-			const bssid = L.toArray(map.lookupOption('bssid', '_add_trm'))[0].formvalue('_add_trm');
-			const encryption = L.toArray(map.lookupOption('encryption', '_add_trm'))[0].formvalue('_add_trm');
+			const device = getAddValue('device');
+			const network = getAddValue('network');
+			const ssid = getAddValue('ssid');
+			const ignore_bssid = getAddValue('ignore_bssid');
+			const bssid = getAddValue('bssid');
+			const encryption = getAddValue('encryption');
 
 			let password = null;
 			let eap_type, auth, identity, anonymous_identity, ca_cert_usesystem, ca_cert, ieee80211w;
 			let client_cert, priv_key, priv_key_pwd;
 
 			if (encryption.includes('wpa')) {
-				eap_type = L.toArray(map.lookupOption('eap_type', '_add_trm'))[0].formvalue('_add_trm');
-				auth = L.toArray(map.lookupOption('auth', '_add_trm'))[0].formvalue('_add_trm');
-				identity = L.toArray(map.lookupOption('identity', '_add_trm'))[0].formvalue('_add_trm');
-				anonymous_identity = L.toArray(map.lookupOption('anonymous_identity', '_add_trm'))[0].formvalue('_add_trm');
-				password = L.toArray(map.lookupOption('password', '_add_trm'))[0].formvalue('_add_trm');
-				ca_cert_usesystem = L.toArray(map.lookupOption('ca_cert_usesystem', '_add_trm'))[0].formvalue('_add_trm');
-				ca_cert = L.toArray(map.lookupOption('ca_cert', '_add_trm'))[0].formvalue('_add_trm');
-				ieee80211w = L.toArray(map.lookupOption('ieee80211w', '_add_trm'))[0].formvalue('_add_trm');
+				eap_type = getAddValue('eap_type');
+				auth = getAddValue('auth');
+				identity = getAddValue('identity');
+				anonymous_identity = getAddValue('anonymous_identity');
+				password = getAddValue('password');
+				ca_cert_usesystem = getAddValue('ca_cert_usesystem');
+				ca_cert = getAddValue('ca_cert');
+				ieee80211w = getAddValue('ieee80211w');
 
 				if (eap_type.includes('tls')) {
-					client_cert = L.toArray(map.lookupOption('client_cert', '_add_trm'))[0].formvalue('_add_trm');
-					priv_key = L.toArray(map.lookupOption('priv_key', '_add_trm'))[0].formvalue('_add_trm');
-					priv_key_pwd = L.toArray(map.lookupOption('priv_key_pwd', '_add_trm'))[0].formvalue('_add_trm');
+					client_cert = getAddValue('client_cert');
+					priv_key = getAddValue('priv_key');
+					priv_key_pwd = getAddValue('priv_key_pwd');
 				}
 			}
 			else {
-				password = L.toArray(map.lookupOption('key', '_add_trm'))[0].formvalue('_add_trm');
+				password = getAddValue('key');
 			}
 
 			if (!ssid || ((encryption.includes('psk') || encryption.includes('wpa') || encryption.includes('sae')) && !password)) {

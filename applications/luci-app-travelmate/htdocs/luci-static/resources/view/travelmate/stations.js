@@ -743,7 +743,7 @@ return view.extend({
 							'style': 'float:none;margin-right:.4em;',
 							'id': radio,
 							'click': ui.createHandlerFn(this, 'handleScan', radio)
-						}, [_('Scan on ' + radio + '...')]))
+						}, [_('Scan on %s...').format(radio)]))
 					}
 				}
 				return E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, E('div', { 'class': 'left', 'style': 'padding-top:5px; padding-bottom:5px' }, btns));
@@ -765,7 +765,7 @@ return view.extend({
 					E('th', { 'class': 'th cbi-section-actions right' }, '\xa0')
 				])
 			]);
-			cbi_update_table(table, [], E('em', { class: 'spinning' }, _('Starting wireless scan on \'' + radio + '\'...')));
+			cbi_update_table(table, [], E('em', { class: 'spinning' }, _('Starting wireless scan on \'%s\'...').format(radio)));
 
 			let md = ui.showModal(_('Wireless Scan'), [
 				table,

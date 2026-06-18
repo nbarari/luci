@@ -16,10 +16,7 @@
 function handleAction(ev) {
 	let ifaceValue;
 	if (ev === 'restartInterface') {
-		ifaceValue = String(uci.get('travelmate', 'global', 'trm_iface') || 'trm_wwan');
-		return fs.exec('/etc/init.d/travelmate', ['stop'])
-			.then(fs.exec('/sbin/ifup', [ifaceValue]))
-			.then(fs.exec('/etc/init.d/travelmate', ['start']))
+		return fs.exec_direct('/etc/init.d/travelmate', ['restart_iface']);
 	}
 	if (ev === 'restartTravelmate') {
 		const map = document.querySelector('.cbi-map');

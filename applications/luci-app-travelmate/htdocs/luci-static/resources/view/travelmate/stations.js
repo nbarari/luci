@@ -808,7 +808,7 @@ return view.extend({
 		*/
 		s.handleScan = function (radio) {
 			poll.stop();
-			let table = E('table', { 'class': 'table' }, [
+			let table = E('table', { 'class': 'table', 'aria-busy': 'true' }, [
 				E('tr', { 'class': 'tr table-titles' }, [
 					E('th', { 'class': 'th col-1 middle left' }, _('Strength')),
 					E('th', { 'class': 'th col-1 middle left hide-xs' }, _('Channel')),
@@ -820,8 +820,26 @@ return view.extend({
 			]);
 			cbi_update_table(table, [], E('em', { class: 'spinning' }, _('Starting wireless scan on \'%s\'...').format(radio)));
 
+			/*
+				aria-live status region (finding L17) so screen-reader users
+				hear scan progress and the result count. The results table is
+				wrapped in a focusable, labelled region (finding L16) so keyboard
+				users land on the fresh results when the scan completes.
+			*/
+			let scanStatus = E('div', {
+				'class': 'trm-scan-status',
+				'role': 'status',
+				'aria-live': 'polite'
+			});
+
 			let md = ui.showModal(_('Wireless Scan'), [
-				table,
+				scanStatus,
+				E('div', {
+					'role': 'region',
+					'aria-label': _('Scan results'),
+					'tabindex': '-1',
+					'id': 'trm-scan-results'
+				}, table),
 				E('div', { 'class': 'right' }, [
 					E('button', {
 						'class': 'btn',
@@ -839,6 +857,9 @@ return view.extend({
 
 			md.style.maxWidth = '90%';
 			md.style.maxHeight = 'none';
+
+			// set after insertion so the live region announces the change
+			scanStatus.textContent = _('Scanning \'%s\'…').format(radio);
 
 			return L.resolveDefault(fs.exec_direct('/etc/init.d/travelmate', ['scan', radio]))
 				.then(L.bind(function () {
@@ -972,7 +993,16 @@ return view.extend({
 							}
 
 							cbi_update_table(table, rows);
+							table.setAttribute('aria-busy', 'false');
+							let found = res ? rows.length : 0;
+							scanStatus.textContent = (found > 0)
+								? _('Scan complete: %d network(s) found.').format(found)
+								: _('Scan complete: no networks found.');
 							document.getElementById('scan-btn').disabled = false;
+							let resultsRegion = document.getElementById('trm-scan-results');
+							if (resultsRegion) {
+								resultsRegion.focus();
+							}
 							poll.start();
 						}, this));
 				}, this));

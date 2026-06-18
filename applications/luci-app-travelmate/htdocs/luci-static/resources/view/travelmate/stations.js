@@ -264,13 +264,23 @@ function handleStatus() {
 					const vpnStatus = vpnMatch ? vpnMatch[1] : '✘';
 
 					let t_device, t_ssid, t_bssid, newUplinkView, uplinkColor;
-					t_device = uplinkId[0];
-					t_bssid = uplinkId[uplinkId.length - 1];
-					for (let i = 1; i < uplinkId.length - 1; i++) {
-						if (!t_ssid) {
-							t_ssid = uplinkId[i];
-						} else {
-							t_ssid = t_ssid + '/' + uplinkId[i];
+					if (info.data.station && typeof info.data.station === 'object') {
+						// prefer the structured station object (finding L4); it is
+						// unambiguous for ESSIDs containing '/'.
+						t_device = info.data.station.radio;
+						t_ssid = info.data.station.essid;
+						t_bssid = info.data.station.bssid;
+					} else {
+						// fall back to splitting the slash-joined station_id for
+						// backends that predate the station object.
+						t_device = uplinkId[0];
+						t_bssid = uplinkId[uplinkId.length - 1];
+						for (let i = 1; i < uplinkId.length - 1; i++) {
+							if (!t_ssid) {
+								t_ssid = uplinkId[i];
+							} else {
+								t_ssid = t_ssid + '/' + uplinkId[i];
+							}
 						}
 					}
 					if (t_ssid === '-') {

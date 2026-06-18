@@ -21,38 +21,12 @@ function qrEscape(s) {
 }
 
 /*
-	network interface helper
-*/
-function waitForIface(ifaceName, timeoutMs) {
-	const deadline = Date.now() + (timeoutMs || 20000);
-	function tick() {
-		return network.flushCache().then(function () {
-			return network.getNetwork(ifaceName);
-		}).then(function (net) {
-			if (net && net.isUp())
-				return true;
-			if (Date.now() >= deadline)
-				return false;
-			return new Promise(function (resolve) {
-				window.setTimeout(resolve, 500);
-			}).then(tick);
-		});
-	}
-	return tick();
-}
-
-
-/*
 	button handling
 */
 function handleAction(ev) {
 	let ifaceValue;
 	if (ev === 'restartInterface') {
-		ifaceValue = String(uci.get('travelmate', 'global', 'trm_iface') || 'trm_wwan');
-		return fs.exec('/etc/init.d/travelmate', ['stop'])
-			.then(() => L.resolveDefault(fs.exec('/sbin/ifup', [ifaceValue])))
-			.then(() => waitForIface(ifaceValue, 20000))
-			.then(() => fs.exec('/etc/init.d/travelmate', ['start']))
+		return fs.exec_direct('/etc/init.d/travelmate', ['restart_iface']);
 	}
 	if (ev === 'restartTravelmate') {
 		const map = document.querySelector('.cbi-map');

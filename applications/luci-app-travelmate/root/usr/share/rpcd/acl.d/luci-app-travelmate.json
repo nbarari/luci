@@ -31,9 +31,6 @@
 				"/var/run/travelmate/travelmate.runtime.json": [
 					"read"
 				],
-				"/sbin/ifup *": [
-					"exec"
-				],
 				"/etc/init.d/travelmate start": [
 					"exec"
 				],
@@ -47,6 +44,9 @@
 					"exec"
 				],
 				"/etc/init.d/travelmate scan *": [
+					"exec"
+				],
+				"/etc/init.d/travelmate restart_iface": [
 					"exec"
 				]
 			},
